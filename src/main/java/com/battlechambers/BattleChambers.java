@@ -1,173 +1,158 @@
 package com.battlechambers;
 
-import com.battlechambers.api.BattleChambersAPI;
-import com.battlechambers.command.CommandManager;
+import com.battlechambers.command.BattleChambersCommand;
 import com.battlechambers.config.ConfigManager;
-import com.battlechambers.database.DatabaseManager;
 import com.battlechambers.game.GameManager;
-import com.battlechambers.listener.GameListeners;
+import com.battlechambers.listener.PlayerListener;
+import com.battlechambers.listener.ServerListener;
+import com.battlechambers.listener.WorldListener;
 import com.battlechambers.manager.ArenaManager;
 import com.battlechambers.manager.PlayerDataManager;
-import com.battlechambers.npc.NPCManager;
-import com.battlechambers.reward.RewardManager;
-import com.battlechambers.scheduler.GameScheduler;
-import com.battlechambers.storage.StorageProvider;
 import com.battlechambers.utils.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Main plugin class for BattleChambers
+ * BattleChambers - Main Plugin Class
+ * A comprehensive mini-game server plugin for Minecraft
  * 
- * Responsible for:
- * - Initializing all managers and systems
- * - Loading configuration files
- * - Setting up database connections
- * - Registering listeners and commands
- * - Managing plugin lifecycle
+ * Features:
+ * - 10+ mini-games with unique mechanics
+ * - Arena management system
+ * - Player progression and statistics
+ * - Command system with tab completion
+ * - Event-driven architecture
  * 
  * @author BattleChambers Team
  * @version 1.0.0
  */
 public class BattleChambers extends JavaPlugin {
 
-    // Static instance for API access
     private static BattleChambers instance;
-
-    // Core managers
+    
     private ConfigManager configManager;
-    private DatabaseManager databaseManager;
-    private StorageProvider storageProvider;
     private ArenaManager arenaManager;
     private GameManager gameManager;
     private PlayerDataManager playerDataManager;
-    private RewardManager rewardManager;
-    private GameScheduler gameScheduler;
-    private CommandManager commandManager;
-    private NPCManager npcManager;
-    private GameListeners gameListeners;
 
-    /**
-     * Called when the plugin is enabled
-     * Initializes all systems and managers
-     */
     @Override
     public void onEnable() {
         instance = this;
         
+        Logger.setPlugin(this);
+        Logger.info("=".repeat(50));
+        Logger.info("BattleChambers v" + getDescription().getVersion() + " is loading...");
+        Logger.info("=".repeat(50));
+
         try {
-            // Log startup
-            Logger.info("§6================================================");
-            Logger.info("§6  BattleChambers v" + getDescription().getVersion());
-            Logger.info("§6  Starting initialization...");
-            Logger.info("§6================================================");
-
-            // Step 1: Load configuration files
-            Logger.info("§7[1/8] Loading configuration files...");
+            // Initialize configuration
+            saveDefaultConfig();
             this.configManager = new ConfigManager(this);
-            this.configManager.loadAllConfigs();
-            Logger.info("§aConfiguration files loaded successfully!");
+            Logger.info("✓ Configuration loaded");
 
-            // Step 2: Initialize database
-            Logger.info("§7[2/8] Initializing database connection...");
-            this.databaseManager = new DatabaseManager(this, this.configManager);
-            this.databaseManager.connect();
-            Logger.info("§aDatabase connected successfully!");
+            // Initialize managers
+            this.arenaManager = new ArenaManager(this, configManager);
+            Logger.info("✓ Arena Manager initialized (" + arenaManager.getArenaCount() + " arenas)");
 
-            // Step 3: Initialize storage provider
-            Logger.info("§7[3/8] Initializing storage provider...");
-            this.storageProvider = new StorageProvider(this.databaseManager);
-            Logger.info("§aStorage provider initialized!");
+            this.gameManager = new GameManager(this, arenaManager, configManager);
+            Logger.info("✓ Game Manager initialized (" + gameManager.getGameCount() + " games)");
 
-            // Step 4: Initialize arena manager
-            Logger.info("§7[4/8] Initializing arena manager...");
-            this.arenaManager = new ArenaManager(this, this.configManager);
-            Logger.info("§aArena manager initialized!");
+            this.playerDataManager = new PlayerDataManager(this, configManager);
+            Logger.info("✓ Player Data Manager initialized");
 
-            // Step 5: Initialize game manager
-            Logger.info("§7[5/8] Initializing game manager...");
-            this.gameManager = new GameManager(this, this.arenaManager, this.configManager);
-            Logger.info("§aGame manager initialized!");
+            // Register commands
+            registerCommands();
+            Logger.info("✓ Commands registered");
 
-            // Step 6: Initialize player data manager
-            Logger.info("§7[6/8] Initializing player data manager...");
-            this.playerDataManager = new PlayerDataManager(this, this.storageProvider);
-            Logger.info("§aPlayer data manager initialized!");
+            // Register listeners
+            registerListeners();
+            Logger.info("✓ Event listeners registered");
 
-            // Step 7: Initialize reward manager
-            Logger.info("§7[7/8] Initializing reward manager...");
-            this.rewardManager = new RewardManager(this, this.configManager, this.storageProvider);
-            Logger.info("§aReward manager initialized!");
+            // Schedule tasks
+            scheduleTasks();
+            Logger.info("✓ Scheduled tasks initialized");
 
-            // Step 8: Register listeners and commands
-            Logger.info("§7[8/8] Registering listeners and commands...");
-            this.gameScheduler = new GameScheduler(this, this.gameManager);
-            this.commandManager = new CommandManager(this);
-            this.gameListeners = new GameListeners(this);
-            this.npcManager = new NPCManager(this);
-            Logger.info("§aListeners and commands registered!");
+            Logger.info("=".repeat(50));
+            Logger.info("BattleChambers v" + getDescription().getVersion() + " enabled successfully!");
+            Logger.info("=".repeat(50));
 
-            // Final startup message
-            Logger.info("§6================================================");
-            Logger.info("§a✓ BattleChambers enabled successfully!");
-            Logger.info("§7Use §f/bc help §7for available commands");
-            Logger.info("§6================================================");
+            // Notify online players
+            Bukkit.broadcastMessage("\n§a[BattleChambers] §lPlugin loaded! Use §e/bc help §r§afor commands.\n");
 
         } catch (Exception e) {
-            Logger.error("Failed to initialize BattleChambers!");
-            Logger.error(e.getMessage());
+            Logger.error("Failed to enable BattleChambers!");
             e.printStackTrace();
-            // Disable plugin on initialization failure
-            getServer().getPluginManager().disablePlugin(this);
+            Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 
-    /**
-     * Called when the plugin is disabled
-     * Cleans up all resources and connections
-     */
     @Override
     public void onDisable() {
-        try {
-            Logger.info("§6================================================");
-            Logger.info("§6  BattleChambers is shutting down...");
-            Logger.info("§6================================================");
+        Logger.info("=".repeat(50));
+        Logger.info("BattleChambers is disabling...");
 
-            // Stop all running games
-            if (this.gameManager != null) {
-                this.gameManager.stopAllGames();
-                Logger.info("§7All games stopped");
-            }
-
-            // Disconnect players
-            if (this.playerDataManager != null) {
-                this.playerDataManager.disconnectAllPlayers();
-                Logger.info("§7All players disconnected");
-            }
-
-            // Close database connection
-            if (this.databaseManager != null) {
-                this.databaseManager.disconnect();
-                Logger.info("§7Database connection closed");
-            }
-
-            // Unregister listeners
-            org.bukkit.plugin.PluginManager pm = getServer().getPluginManager();
-            org.bukkit.event.HandlerList.unregisterAll(this);
-            Logger.info("§7Listeners unregistered");
-
-            Logger.info("§a✓ BattleChambers disabled successfully!");
-            Logger.info("§6================================================");
-
-        } catch (Exception e) {
-            Logger.error("Error during plugin shutdown:");
-            Logger.error(e.getMessage());
-            e.printStackTrace();
+        // Stop all active games
+        if (gameManager != null) {
+            gameManager.stopAllGames();
+            Logger.info("✓ Stopped all active games");
         }
+
+        // Save all player data
+        if (playerDataManager != null) {
+            playerDataManager.saveAllPlayers();
+            Logger.info("✓ Saved all player data");
+        }
+
+        // Save configuration
+        if (configManager != null) {
+            configManager.saveConfig();
+            Logger.info("✓ Configuration saved");
+        }
+
+        Logger.info("BattleChambers disabled.");
+        Logger.info("=".repeat(50));
     }
 
     /**
-     * Get the plugin instance (Singleton for convenience)
-     * @return Plugin instance
+     * Register plugin commands
+     */
+    private void registerCommands() {
+        BattleChambersCommand mainCommand = new BattleChambersCommand(this);
+        getCommand("bc").setExecutor(mainCommand);
+        getCommand("bc").setTabCompleter(mainCommand);
+    }
+
+    /**
+     * Register event listeners
+     */
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new WorldListener(this), this);
+        getServer().getPluginManager().registerEvents(new ServerListener(this), this);
+    }
+
+    /**
+     * Schedule recurring tasks
+     */
+    private void scheduleTasks() {
+        // Save player data every 5 minutes
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            if (playerDataManager != null) {
+                playerDataManager.saveAllPlayers();
+            }
+        }, 6000L, 6000L); // 5 minutes
+
+        // Update leaderboards every minute
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            if (playerDataManager != null) {
+                playerDataManager.updateLeaderboards();
+            }
+        }, 1200L, 1200L); // 1 minute
+    }
+
+    /**
+     * Get plugin instance
+     * @return The plugin instance
      */
     public static BattleChambers getInstance() {
         return instance;
@@ -175,31 +160,15 @@ public class BattleChambers extends JavaPlugin {
 
     /**
      * Get the configuration manager
-     * @return ConfigManager instance
+     * @return The ConfigManager
      */
     public ConfigManager getConfigManager() {
         return configManager;
     }
 
     /**
-     * Get the database manager
-     * @return DatabaseManager instance
-     */
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
-
-    /**
-     * Get the storage provider
-     * @return StorageProvider instance
-     */
-    public StorageProvider getStorageProvider() {
-        return storageProvider;
-    }
-
-    /**
      * Get the arena manager
-     * @return ArenaManager instance
+     * @return The ArenaManager
      */
     public ArenaManager getArenaManager() {
         return arenaManager;
@@ -207,7 +176,7 @@ public class BattleChambers extends JavaPlugin {
 
     /**
      * Get the game manager
-     * @return GameManager instance
+     * @return The GameManager
      */
     public GameManager getGameManager() {
         return gameManager;
@@ -215,49 +184,9 @@ public class BattleChambers extends JavaPlugin {
 
     /**
      * Get the player data manager
-     * @return PlayerDataManager instance
+     * @return The PlayerDataManager
      */
     public PlayerDataManager getPlayerDataManager() {
         return playerDataManager;
-    }
-
-    /**
-     * Get the reward manager
-     * @return RewardManager instance
-     */
-    public RewardManager getRewardManager() {
-        return rewardManager;
-    }
-
-    /**
-     * Get the game scheduler
-     * @return GameScheduler instance
-     */
-    public GameScheduler getGameScheduler() {
-        return gameScheduler;
-    }
-
-    /**
-     * Get the command manager
-     * @return CommandManager instance
-     */
-    public CommandManager getCommandManager() {
-        return commandManager;
-    }
-
-    /**
-     * Get the NPC manager
-     * @return NPCManager instance
-     */
-    public NPCManager getNPCManager() {
-        return npcManager;
-    }
-
-    /**
-     * Get the BattleChambers API
-     * @return BattleChambersAPI instance
-     */
-    public BattleChambersAPI getAPI() {
-        return new BattleChambersAPI(this);
     }
 }

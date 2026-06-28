@@ -1,0 +1,77 @@
+# BattleChambers Configuration File
+# This file contains all configuration settings for the plugin
+
+plugin:
+  name: BattleChambers
+  version: 1.0.0
+  author: BattleChambers Team
+  description: A comprehensive mini-game server plugin
+
+# Database configuration
+database:
+  type: sqlite  # sqlite, mysql
+  sqlite:
+    file: plugins/BattleChambers/data.db
+  mysql:
+    host: localhost
+    port: 3306
+    database: battlechambers
+    username: root
+    password: password
+    useSSL: false
+
+# Arena settings
+arenas:
+  default_max_players: 24
+  default_min_players: 2
+  spawn_protection: true
+  pvp_enabled: true
+  fall_damage: true
+  fire_damage: true
+  hunger: true
+  weather: false
+
+# Game settings
+games:
+  default_duration: 120  # seconds
+  countdown_duration: 15  # seconds
+  min_players_to_start: 2
+  auto_restart: true
+  restart_delay: 10  # seconds
+
+# Player settings
+players:
+  auto_save_interval: 300  # seconds (5 minutes)
+  xp_multiplier: 1.0
+  coin_multiplier: 1.0
+  level_cap: 100
+  starting_coins: 100
+  kill_reward: 10
+  win_reward: 50
+  death_penalty: 0
+
+# Messaging
+messages:
+  enabled: true
+  welcome: "Welcome to BattleChambers!"
+  game_start: "Game starting in 15 seconds!"
+  game_end: "Game ended!"
+  player_join: "joined the game"
+  player_quit: "left the game"
+
+# Logging
+logging:
+  level: INFO  # DEBUG, INFO, WARN, ERROR
+  file: plugins/BattleChambers/logs/plugin.log
+  console: true
+  file_logging: true
+  max_log_size: 10485760  # 10MB
+
+# Features
+features:
+  leaderboards: true
+  achievements: true
+  cosmetics: true
+  social_features: true
+  party_system: true
+  friend_system: true

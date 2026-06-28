@@ -1,0 +1,45 @@
+# BattleChambers Arenas Configuration
+# Define custom arenas here
+
+arenas:
+  arena_1:
+    name: "Battle Arena 1"
+    world: "battlechambers_world"
+    spawn:
+      x: 0
+      y: 64
+      z: 0
+      yaw: 0
+      pitch: 0
+    max_players: 24
+    min_players: 2
+    enabled: true
+    safe_zone_radius: 10
+
+  arena_2:
+    name: "Battle Arena 2"
+    world: "battlechambers_world"
+    spawn:
+      x: 100
+      y: 64
+      z: 100
+      yaw: 0
+      pitch: 0
+    max_players: 16
+    min_players: 2
+    enabled: true
+    safe_zone_radius: 10
+
+  arena_3:
+    name: "Parkour Arena"
+    world: "battlechambers_parkour"
+    spawn:
+      x: 0
+      y: 64
+      z: 0
+      yaw: 0
+      pitch: 0
+    max_players: 24
+    min_players: 1
+    enabled: true
+    safe_zone_radius: 15

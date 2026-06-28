@@ -1,0 +1,116 @@
+# BattleChambers Games Configuration
+# Game settings and customization
+
+games:
+  bow-battle:
+    name: "Bow Battle"
+    description: "Fight with bows!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      kill: 10
+      participation: 5
+
+  sword-fight:
+    name: "Sword Fight"
+    description: "Duel with swords!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      kill: 10
+      participation: 5
+
+  tnt-run:
+    name: "TNT Run"
+    description: "Run before the ground disappears!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      participation: 5
+
+  block-party:
+    name: "Block Party"
+    description: "Don't fall!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      participation: 5
+
+  parkour-challenge:
+    name: "Parkour Challenge"
+    description: "Complete the course!"
+    enabled: true
+    min_players: 1
+    max_players: 24
+    duration: 180
+    rewards:
+      win: 100
+      participation: 10
+
+  sumo-arena:
+    name: "Sumo Arena"
+    description: "Push them off!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      participation: 5
+
+  lava-escape:
+    name: "Lava Escape"
+    description: "Escape the lava!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      participation: 5
+
+  snowball-fight:
+    name: "Snowball Fight"
+    description: "Throw snowballs!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      kill: 10
+      participation: 5
+
+  fish-challenge:
+    name: "Fish Challenge"
+    description: "Catch the most fish!"
+    enabled: true
+    min_players: 1
+    max_players: 24
+    duration: 180
+    rewards:
+      win: 100
+      participation: 10
+
+  hot-potato:
+    name: "Hot Potato"
+    description: "Don't hold the potato!"
+    enabled: true
+    min_players: 2
+    max_players: 24
+    duration: 120
+    rewards:
+      win: 50
+      participation: 5
