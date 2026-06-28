@@ -1,0 +1,53 @@
+name: BattleChambers
+main: com.battlechambers.BattleChambers
+version: ${project.version}
+description: Professional Mini-Games Plugin for Minecraft Paper 1.21.8
+api-version: '1.21'
+authors:
+  - BattleChambers Team
+website: https://github.com/pipifaruk123-stack/BattleChambers
+
+commands:
+  battlechambers:
+    description: Main plugin command
+    usage: /bc <subcommand>
+    aliases:
+      - bc
+    permission: battle.admin
+    permission-message: "§cYou don't have permission to use this command!"
+
+permissions:
+  battle.*:
+    description: Full plugin access
+    default: op
+    children:
+      battle.admin: true
+      battle.reload: true
+      battle.start: true
+      battle.stop: true
+      battle.setup: true
+      battle.stats: true
+  
+  battle.admin:
+    description: All admin commands
+    default: op
+  
+  battle.reload:
+    description: Reload configuration
+    default: op
+  
+  battle.start:
+    description: Start games
+    default: false
+  
+  battle.stop:
+    description: Stop games
+    default: false
+  
+  battle.setup:
+    description: Setup commands
+    default: op
+  
+  battle.stats:
+    description: View statistics
+    default: true
